@@ -1,9 +1,7 @@
 import os
 import inspect
 import unittest
-import requests
 import time
-import subprocess
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
@@ -11,42 +9,6 @@ from selenium.webdriver.common.keys import Keys
 def current_file_directory():
     return os.path.dirname(
         os.path.abspath(inspect.getfile(inspect.currentframe())))
-
-
-class WebServer(object):
-    """
-    Class to control starting and stopping the webserver
-    """
-    url = 'http://localhost:8000'
-
-    def __init__(self):
-        self.server = None
-
-    def start(self):
-        """
-        Starts the webserver if it is not already running
-        """
-        try:
-            requests.get(self.url)
-
-        except Exception:
-            self._start_server()
-
-    def _start_server(self):
-        command = ['/Users/Lee/.virtualenvs/django/bin/python',
-                   self._path_to_server(), 'runserver']
-        self.server = subprocess.Popen(command)
-
-    def _path_to_server(self):
-        return os.path.join(current_file_directory(), 'manage.py')
-
-    def stop(self):
-        """
-        Stops the web server by sending a SIGTERM
-        """
-        if self.server:
-            self.server.terminate()
-
 
 class NewVisitorTest(unittest.TestCase):
     """
@@ -114,13 +76,7 @@ def main():
     """
     Starts the django webserver before running the unit tests
     """
-    server = WebServer()
-    server.start()
-    try:
-        unittest.main()
-    except Exception:
-        server.stop()
-
+    unittest.main()
 
 if __name__ == '__main__':
     main()

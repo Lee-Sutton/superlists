@@ -1,17 +1,9 @@
-from django.urls import resolve
 from django.test import TestCase
-from django.http import HttpRequest
-from lists.views import home_page
-from django.template.loader import render_to_string
 
 
 class SmokeTest(TestCase):
 
-    def test_root_url_resolves_to_home(self):
-        found = resolve('/')
-        self.assertEqual(found.func, home_page)
-
-    def test_home_page_returns_correct_html(self):
+    def test_uses_home_template(self):
         """
         Tests the home page returns the required html content
         """
