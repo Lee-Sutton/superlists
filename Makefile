@@ -5,4 +5,4 @@ run:
 	python manage.py runserver
 
 func:
-	python functional_tests/tests.py
+	python manage.py test functional_tests

@@ -1,17 +1,21 @@
 import os
 import inspect
-import unittest
 import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from django.test import LiveServerTestCase
 
 
 def current_file_directory():
+    """
+    Returns string containing the path to the
+    current file directory
+    """
     return os.path.dirname(
         os.path.abspath(inspect.getfile(inspect.currentframe())))
 
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
     """
     Tests when a new user views the site
     """
@@ -39,7 +43,7 @@ class NewVisitorTest(unittest.TestCase):
     def test_can_start_a_list_and_retrieve_it_later(self):
         # Edith has heard about a cool new online to-do app. She goes
         # to check out its homepage
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
 
         # She notices the page title and header mention to-do lists
         self.assertTrue('To-Do' in self.browser.title)
@@ -92,12 +96,3 @@ class NewVisitorTest(unittest.TestCase):
         # Satisfied, she goes back to sleep
 
 
-
-def main():
-    """
-    Starts the django webserver before running the unit tests
-    """
-    unittest.main()
-
-if __name__ == '__main__':
-    main()
