@@ -33,7 +33,7 @@ class NewVisitorTest(unittest.TestCase):
         Checks if the input row text exists in the todo list table
         """
         table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_element_by_tag_name('tr')
+        rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
 
     def test_can_start_a_list_and_retrieve_it_later(self):
