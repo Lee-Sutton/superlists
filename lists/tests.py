@@ -1,8 +1,11 @@
+"""
+Unit tests for the lists application
+"""
 from django.test import TestCase
 from lists.models import Item
 
 
-class SmokeTest(TestCase):
+class HomePageTest(TestCase):
     """
     Unit tests for the lists application
     """
@@ -18,13 +21,18 @@ class SmokeTest(TestCase):
         self.assertIn('<title>To-Do lists</title>', html)
         self.assertTrue(html.strip().endswith('</html>'))
 
-    def test_can_save_POST_request(self):
+    def test_can_save_post_request(self):
         """test_can_save_POST_request
         Tests that the home page can save the data from
         a post request with the input todo item
         """
         response = self.client.post('/',
                                     data={'item_text': 'A new list item'})
+        # The posted item should be saved in the database
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'A new list item')
+
         self.assertIn('A new list item', response.content.decode())
         self.assertTemplateUsed(response, 'home.html')
 
@@ -54,3 +62,4 @@ class ItemModelTest(TestCase):
         self.assertEqual(first_saved_item.text,
                          'The first (ever) list item')
         self.assertEqual(second_saved_item.text, 'Item the second')
+
