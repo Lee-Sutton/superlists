@@ -64,7 +64,6 @@ class HomePageTest(TestCase):
         self.assertIn('itemey 2', response.content.decode())
 
 
-
 class ItemModelTest(TestCase):
     """
     Unit Tests for the item model class.

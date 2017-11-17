@@ -2,8 +2,11 @@ import os
 import inspect
 import time
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
 from django.test import LiveServerTestCase
+
+MAX_TIMEOUT_S = 10
 
 
 def current_file_directory():
@@ -32,13 +35,21 @@ class NewVisitorTest(LiveServerTestCase):
         """
         self.browser.quit()
 
-    def check_for_row_in_list_table(self, row_text):
+    def wait_for_row_in_list_table(self, row_text):
         """
         Checks if the input row text exists in the todo list table
         """
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn(row_text, [row.text for row in rows])
+        start_time = time.time()
+        while True:
+            try:
+                table = self.browser.find_element_by_id('id_list_table')
+                rows = table.find_elements_by_tag_name('tr')
+                self.assertIn(row_text, [row.text for row in rows])
+                return
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_TIMEOUT_S:
+                    raise e
+                time.sleep(0.5)
 
     def test_can_start_a_list_and_retrieve_it_later(self):
         # Edith has heard about a cool new online to-do app. She goes
@@ -62,23 +73,21 @@ class NewVisitorTest(LiveServerTestCase):
         # When she hits enter, the page updates, and now the page lists
         # "1: Buy peacock feathers" as an item in a to-do list
         input_box.send_keys(Keys.ENTER)
-        time.sleep(1)
 
         row_text = '1: Buy peacock feathers'
-        self.check_for_row_in_list_table(row_text)
+        self.wait_for_row_in_list_table(row_text)
 
         # There is still a text box inviting her to add another item
         # she enters "Use peacock feathers to make a fly"
         inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys('Use peacock feathers to make a fly')
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
 
         # The page updates again and now shows both items in her list
         row_text = '1: Buy peacock feathers'
-        self.check_for_row_in_list_table(row_text)
+        self.wait_for_row_in_list_table(row_text)
         row_text = '2: Use peacock feathers to make a fly'
-        self.check_for_row_in_list_table(row_text)
+        self.wait_for_row_in_list_table(row_text)
 
         # There is still a text box inviting her to add another item. She
         # enters "Use peacock feathers to make a fly" (Edith is very
@@ -94,5 +103,3 @@ class NewVisitorTest(LiveServerTestCase):
         # She visits that URL - her to-do list is still there.
 
         # Satisfied, she goes back to sleep
-
-
