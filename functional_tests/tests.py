@@ -51,7 +51,8 @@ class NewVisitorTest(LiveServerTestCase):
                     raise e
                 time.sleep(0.5)
 
-    def test_can_start_a_list_and_retrieve_it_later(self):
+    def test_can_start_list_for_one_user(self):
+        """Test that the site can create a single list for one user"""
         # Edith has heard about a cool new online to-do app. She goes
         # to check out its homepage
         self.browser.get(self.live_server_url)
@@ -92,7 +93,7 @@ class NewVisitorTest(LiveServerTestCase):
         # There is still a text box inviting her to add another item. She
         # enters "Use peacock feathers to make a fly" (Edith is very
         # methodical)
-        self.fail('Finish the test!')
+        # self.fail('Finish the test!')
 
         # The page updates again, and now shows both items on her list
 
@@ -103,3 +104,28 @@ class NewVisitorTest(LiveServerTestCase):
         # She visits that URL - her to-do list is still there.
 
         # Satisfied, she goes back to sleep
+
+    def test_multiple_users_can_start_list(self):
+        """Test that multiple users can access the site. Each user will have
+        its own todo list accessed by a unique url
+        """
+        # Edith starts a new to-do list
+        self.browser.get(self.live_server_url)
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Buy peacock feathers')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: Buy peacock feathers')
+
+        # She notices that her list has a unique url
+        edith_list_url = self.browser.current_url
+        self.assertRegex(edith_list_url, '/lists/.+')
+
+        # now a new user Francis comes along to the site
+        # We user a new browser session to make sure that no information
+        # of edith's is coming through from cookies etc.
+        self.browser.quit()
+        self.browser = webdriver.Firefox()
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy peacock feathers', page_text)
+        self.assertNotIn('make a fly', page_text)

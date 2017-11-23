@@ -3,3 +3,7 @@
 *.sqlite3
 *.vscode
 *.idea/*
+
+/superlists.sublime-project
+
+/superlists.sublime-workspace
